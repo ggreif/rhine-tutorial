@@ -30,5 +30,12 @@ data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } deriving Show
 -- pull a clock out of nothing...
 type FrameClock = Millisecond 100
 
+-- | monitor - check whether the metadata is as expected
 monitor :: SyncSF IO FrameClock ODU ODU
-monitor = proc i@ODU{..} -> returnA -< i
+monitor = proc i@ODU{..} -> do
+  arrMSync putStrLn -< "incsapi: " ++ sapi
+  returnA -< i
+
+-- | terminate - peel out an higher-order ODU from and OTU
+terminate :: SyncSF IO FrameClock OTU ODU
+terminate = proc OTU{..} -> returnA -< ho
