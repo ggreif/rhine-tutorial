@@ -36,6 +36,15 @@ monitor = proc i@ODU{..} -> do
   arrMSync putStrLn -< "incsapi: " ++ sapi
   returnA -< i
 
--- | terminate - peel out an higher-order ODU from and OTU
+-- | terminate - peel out a higher-order ODU from and OTU
 terminate :: SyncSF IO FrameClock OTU ODU
 terminate = proc OTU{..} -> returnA -< ho
+
+
+portIn :: SyncSF IO FrameClock () OTU
+portIn = proc _ -> returnA -< OTU{ ho = ODU{payload=42, sapi = "Berlin", dapi = "Köln"}}
+
+portOut :: SyncSF IO FrameClock OTU ()
+portOut = proc _ -> returnA -< ()
+
+test = flow $ (portIn >>> portOut) @@ waitClock
