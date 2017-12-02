@@ -1,4 +1,12 @@
+{-# LANGUAGE Arrows, DataKinds #-}
+
+
 module OTN where
+
+-- rhine
+import FRP.Rhine
+import FRP.Rhine.Clock.Realtime.Millisecond
+
 
 -- | OTN stands for Optical Transport Network.
 -- | Here we define seveal components (like NIMs,
@@ -17,3 +25,10 @@ data OTU = OTU { ho :: ODU } deriving Show
 -- | Simple-minded ODU, only carrying a payload and some metadata
 
 data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } deriving Show
+
+
+-- pull a clock out of nothing...
+type FrameClock = Millisecond 100
+
+monitor :: SyncSF IO FrameClock ODU ODU
+monitor = undefined
