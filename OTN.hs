@@ -1,4 +1,4 @@
-{-# LANGUAGE Arrows, DataKinds #-}
+{-# LANGUAGE Arrows, DataKinds, RecordWildCards #-}
 
 
 module OTN where
@@ -31,4 +31,4 @@ data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } deriving Show
 type FrameClock = Millisecond 100
 
 monitor :: SyncSF IO FrameClock ODU ODU
-monitor = undefined
+monitor = proc i@ODU{..} -> returnA -< i
