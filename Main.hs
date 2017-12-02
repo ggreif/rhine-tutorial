@@ -95,4 +95,4 @@ mainRhine
   --> teaStatus   @@  waitClock
 
 main :: IO ()
-main = flow mainRhine
+main = otnTest

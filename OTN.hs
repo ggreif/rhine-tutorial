@@ -52,4 +52,4 @@ portIn = proc _ -> returnA -< OTU{ ho = ODU{payload=42, sapi = "Berlin", dapi = 
 portOut :: SyncSF IO FrameClock OTU ()
 portOut = proc _ -> returnA -< ()
 
-test = flow $ (portIn >>> terminate >>> monitor >>> assemble >>> portOut) @@ waitClock
+otnTest = flow $ (portIn >>> terminate >>> monitor >>> assemble >>> portOut) @@ waitClock
