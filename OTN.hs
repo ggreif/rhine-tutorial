@@ -40,11 +40,16 @@ monitor = proc i@ODU{..} -> do
 terminate :: SyncSF IO FrameClock OTU ODU
 terminate = proc OTU{..} -> returnA -< ho
 
+-- | assemble - put together an OTU given a higher-order ODU
+assemble :: SyncSF IO FrameClock ODU OTU
+assemble = proc ho -> returnA -< OTU{..}
 
+-- | a rundimentary input port (we could model a fiber too!)
 portIn :: SyncSF IO FrameClock () OTU
 portIn = proc _ -> returnA -< OTU{ ho = ODU{payload=42, sapi = "Berlin", dapi = "Köln"}}
 
+-- | a rundimentary output port
 portOut :: SyncSF IO FrameClock OTU ()
 portOut = proc _ -> returnA -< ()
 
-test = flow $ (portIn >>> portOut) @@ waitClock
+test = flow $ (portIn >>> terminate >>> monitor >>> assemble >>> portOut) @@ waitClock
