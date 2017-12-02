@@ -25,6 +25,9 @@ import FRP.Rhine.ResamplingBuffer.Collect
 -- rhine-tutorial
 import Util
 
+-- OTN-related
+import OTN
+
 
 data Tea = Tea
   { teaSort  :: String -- ^ The sort, brand, type of tea
