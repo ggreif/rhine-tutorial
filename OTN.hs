@@ -55,8 +55,12 @@ portOut = proc _ -> returnA -< ()
 
 -- | Build a pipeline and provide a clock. Run the whole thing in IO.
 otnTest = flow $ pipeline @@ waitClock
-  where pipeline = portIn >>> terminate >>> monitor >>> assemble >>> portOut
+  where pipeline = portIn >>> terminate >>> monitor
+               >>> frameCount
+               >>> assemble >>> portOut
 
 frameCount :: SyncSF IO FrameClock a a
 frameCount = loop counter
-  where counter = proc (a, s) -> returnA -< (a, s + 1)
+  where counter = proc (a, s) -> do
+          arrMSync print -< s
+          returnA -< (a, s + 1)
