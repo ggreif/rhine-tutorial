@@ -59,13 +59,5 @@ otnTest = flow $ pipeline @@ waitClock
                >-> assemble >-> portOut
 
 frameCount :: SyncSF IO FrameClock a a
-frameCount = loop counter
-  where counter = proc (a, s) -> do
-          arrMSync print -< s
-          returnA -< (a, s + 1)
-
--- reactimate $ arr (const 1) >>> accumulateWith (+) 0 >>> arrMSync print
---
-cou = flow $ inner @@ waitClock
-  where inner :: SyncSF IO FrameClock () ()
-        inner = arr_ 1 >-> (timeless $ accumulateWith (+) 0) >-> arrMSync print
+frameCount = syncId &&& counter >>> arr fst
+  where counter = arr_ 1 >-> (timeless $ accumulateWith (+) 0) >-> arrMSync print
