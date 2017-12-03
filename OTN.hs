@@ -61,3 +61,15 @@ otnTest = flow $ pipeline @@ waitClock
 frameCount :: SyncSF IO FrameClock a a
 frameCount = syncId &&& counter >>> arr fst
   where counter = arr_ 1 >-> (timeless $ accumulateWith (+) 0) >-> arrMSync print
+
+-- * TODOs
+-- - model crossconnect function
+-- - model AIS (OTU/ODU)
+-- - model lower-order ODUs
+-- - model substructuring
+-- - model timing realms (IF/CC)
+-- - model phase jumps
+-- - model all-zeros
+-- - model OCI
+-- - model defects/alarms/faults
+-- - model correlation F4, etc.
