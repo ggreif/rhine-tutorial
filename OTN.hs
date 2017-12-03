@@ -94,7 +94,8 @@ frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 -- - model timing domains (IF/XC)
 -- - model phase jumps
 -- - model framers
--- - model all-zeros
+-- - model all-zeros (XC)
+-- - model RDI
 -- - model OCI
 -- - model defects / alarms / faults
 -- - model correlation F4, etc.
