@@ -66,11 +66,13 @@ frameCount = syncId &&& counter >>> arr fst
 -- - model crossconnect function
 -- - model AIS (OTU/ODU)
 -- - model lower-order ODUs
+-- - model bandwidths
 -- - model substructuring
 -- - model timing domains (IF/XC)
 -- - model phase jumps
 -- - model all-zeros
 -- - model OCI
--- - model defects/alarms/faults
+-- - model defects / alarms / faults
 -- - model correlation F4, etc.
 -- - model loopbacks
+-- - model quality (biterrors, ES, SES)
