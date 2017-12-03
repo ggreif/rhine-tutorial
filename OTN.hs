@@ -35,7 +35,7 @@ monitor = proc i@ODU{..} -> do
   arrMSync putStrLn -< "incsapi: " ++ sapi
   returnA -< i
 
--- | terminate - peel out a higher-order ODU from and OTU
+-- | terminate - peel out a higher-order ODU from an OTU
 terminate :: SyncSF IO FrameClock OTU ODU
 terminate = proc OTU{..} -> returnA -< ho
 
@@ -43,11 +43,11 @@ terminate = proc OTU{..} -> returnA -< ho
 assemble :: SyncSF IO FrameClock ODU OTU
 assemble = proc ho -> returnA -< OTU{..}
 
--- | a rundimentary input port (we could model a fiber too!)
+-- | a rudimentary input port (we could model a fiber too!)
 portIn :: SyncSignal IO FrameClock OTU
 portIn = proc _ -> returnA -< OTU{ ho = ODU{payload=42, sapi = "Berlin", dapi = "Köln"}}
 
--- | a rundimentary output port
+-- | a rudimentary output port
 portOut :: SyncSF IO FrameClock OTU ()
 portOut = proc _ -> returnA -< ()
 
@@ -67,9 +67,10 @@ frameCount = syncId &&& counter >>> arr fst
 -- - model AIS (OTU/ODU)
 -- - model lower-order ODUs
 -- - model substructuring
--- - model timing realms (IF/CC)
+-- - model timing domains (IF/XC)
 -- - model phase jumps
 -- - model all-zeros
 -- - model OCI
 -- - model defects/alarms/faults
 -- - model correlation F4, etc.
+-- - model loopbacks
