@@ -83,8 +83,7 @@ otnTest = flow $ pipeline @@ waitClock
 -- * Utilities
 
 frameCount :: SyncSF IO FrameClock a a
-frameCount = syncId &&& counter >>> arr fst
-  where counter = arr_ 1 >-> (timeless $ accumulateWith (+) 0) >-> arrMSync print
+frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 -- * TODOs
 -- - model crossconnect function
