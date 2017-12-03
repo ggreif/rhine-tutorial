@@ -1,6 +1,5 @@
 {-# LANGUAGE Arrows, DataKinds, RecordWildCards #-}
 
-
 module OTN where
 
 -- rhine
@@ -45,7 +44,7 @@ assemble :: SyncSF IO FrameClock ODU OTU
 assemble = proc ho -> returnA -< OTU{..}
 
 -- | a rundimentary input port (we could model a fiber too!)
-portIn :: SyncSF IO FrameClock () OTU
+portIn :: SyncSignal IO FrameClock OTU
 portIn = proc _ -> returnA -< OTU{ ho = ODU{payload=42, sapi = "Berlin", dapi = "Köln"}}
 
 -- | a rundimentary output port
@@ -55,9 +54,9 @@ portOut = proc _ -> returnA -< ()
 
 -- | Build a pipeline and provide a clock. Run the whole thing in IO.
 otnTest = flow $ pipeline @@ waitClock
-  where pipeline = portIn >>> terminate >>> monitor
-               >>> frameCount
-               >>> assemble >>> portOut
+  where pipeline = portIn >-> terminate >-> monitor
+               >-> frameCount
+               >-> assemble >-> portOut
 
 frameCount :: SyncSF IO FrameClock a a
 frameCount = loop counter
@@ -69,4 +68,4 @@ frameCount = loop counter
 --
 cou = flow $ inner @@ waitClock
   where inner :: SyncSF IO FrameClock () ()
-        inner = arr (const 1) >>> (timeless $ accumulateWith (+) 0) >>> arrMSync print
+        inner = arr_ 1 >-> (timeless $ accumulateWith (+) 0) >-> arrMSync print
