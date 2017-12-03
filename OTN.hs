@@ -1,4 +1,4 @@
-{-# LANGUAGE Arrows, DataKinds, RecordWildCards #-}
+{-# LANGUAGE Arrows, DataKinds, RecordWildCards, BangPatterns #-}
 
 module OTN where
 
@@ -7,6 +7,8 @@ module OTN where
 -- rhine
 import FRP.Rhine
 import FRP.Rhine.Clock.Realtime.Millisecond
+import Data.IORef
+import System.IO.Unsafe
 
 -- * Data types
 
@@ -62,6 +64,14 @@ portOut = proc _ -> returnA -< ()
 
 -- TBD
 
+{-# NOINLINE xcConf #-}
+xcConf :: IORef (Int -> Maybe Int) -- output-oriented matrix
+!xcConf = unsafePerformIO $ newIORef $ const Nothing
+
+cc :: SyncSF IO FrameClock (ODU, ODU) (ODU, ODU)
+cc = undefined
+
+
 -- * Tests
 
 -- | Build a pipeline and provide a clock. Run the whole thing in IO.
@@ -84,6 +94,7 @@ frameCount = syncId &&& counter >>> arr fst
 -- - model substructuring
 -- - model timing domains (IF/XC)
 -- - model phase jumps
+-- - model framers
 -- - model all-zeros
 -- - model OCI
 -- - model defects / alarms / faults
