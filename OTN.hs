@@ -24,6 +24,54 @@ import System.IO.Unsafe
 --   - metadata
 --   yet.
 
+-- * defects
+{-
+OTUk_AP:
+OTUk_AI_CK
+OTUk_AI_D
+OTUk_AI_FS
+OTUk_AI_MFS
+OTUk_AI_TSF
+OTUk_AI_TSD
+
+OTUk_RP:
+OTUk_RI_BDI
+OTUk_RI_BEI
+OTUk_RI_BIAE
+
+OTUk_TT_Sk_MP:
+OTUk_TT_Sk_MI_AcTI
+OTUk_TT_Sk_MI_cTIM
+OTUk_TT_Sk_MI_cDEG
+OTUk_TT_Sk_MI_cBDI
+OTUk_TT_Sk_MI_cSSF
+OTUk_TT_Sk_MI_pN_EBC
+OTUk_TT_Sk_MI_pN_DS
+OTUk_TT_Sk_MI_pF_EBC
+OTUk_TT_Sk_MI_pF_DS
+OTUk_TT_Sk_MI_pBIAE
+OTUk_TT_Sk_MI_pIAE
+-}
+
+{-
+OTUk_TCP:
+OTUk_CI_CK
+OTUk_CI_D
+OTUk_CI_FS
+OTUk_CI_MFS
+OTUk_CI_SSF
+OTUk_TT_Sk_MP:
+OTUk_TT_Sk_MI_ExSAPI
+OTUk_TT_Sk_MI_ExDAPI
+OTUk_TT_Sk_MI_GetAcTI
+OTUk_TT_Sk_MI_TIMDetMo
+OTUk_TT_Sk_MI_TIMActDis
+OTUk_TT_Sk_MI_DEGThr
+OTUk_TT_Sk_MI_DEGM
+OTUk_TT_Sk_MI_1second
+-}
+
+
 data OTU = OTU { ho :: ODU } deriving Show
 
 -- | Simple-minded ODU, only carrying a payload and some metadata
