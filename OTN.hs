@@ -70,8 +70,12 @@ xcConf :: IORef (Int -> Maybe Int) -- output-oriented matrix
 
 cc :: SyncSF IO FrameClock (ODU, ODU) (ODU, ODU)
 cc = proc (i1, i2) -> do
+  conf <- arrMSync readIORef -< xcConf
+  arrMSync print -< (conf 1, conf 2)
+  let newConf 1 = Nothing
+      newConf 2 = Just 1
+  arrMSync (writeIORef xcConf) -< newConf
   returnA -< (i2, i1)
-
 
 -- * Tests
 
