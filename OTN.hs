@@ -69,7 +69,8 @@ xcConf :: IORef (Int -> Maybe Int) -- output-oriented matrix
 !xcConf = unsafePerformIO $ newIORef $ const Nothing
 
 cc :: SyncSF IO FrameClock (ODU, ODU) (ODU, ODU)
-cc = undefined
+cc = proc (i1, i2) -> do
+  returnA -< (i2, i1)
 
 
 -- * Tests
