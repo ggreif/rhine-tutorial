@@ -72,6 +72,21 @@ OTUk_TT_Sk_MI_1second
 -}
 
 
+{-
+aBDI ¬ CI_SSF or dTIM
+aBEI ¬ nBIPV
+aBIAE ¬ dIAE
+aTSF ¬ CI_SSF or (dTIM and (not TIMActDis))
+aTSD ¬ dDEG
+
+
+cTIM ¬ dTIM and (not CI_SSF)
+cDEG ¬ dDEG and (not CI_SSF) and (not (dTIM and (not TIMActDis)))
+cBDI ¬ dBDI and (not CI_SSF) and (not (dTIM and (not TIMActDis)))
+cSSF ¬ CI_SSF
+
+-}
+
 data OTU = OTU { ho :: ODU } deriving Show
 
 -- | Simple-minded ODU, only carrying a payload and some metadata
