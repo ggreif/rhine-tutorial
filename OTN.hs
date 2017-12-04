@@ -83,6 +83,7 @@ cc = proc (i1, i2) -> do
 otnTest = flow $ pipeline @@ waitClock
   where pipeline = portIn >-> terminate >-> monitor
                >-> frameCount
+               >-> arr (\x->(x,x)) >-> cc >-> arr snd
                >-> assemble >-> portOut
 
 -- * Utilities
