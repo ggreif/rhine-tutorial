@@ -156,8 +156,17 @@ mealy f s0 = feedback s0 $ arr g
   where
     g (a, s) = let (b, s') = f a s in (b, s')
 
-mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
-mealySync f s0 = timeless $ mealy f s0
+-- mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
+-- mealySync f s0 = timeless $ mealy f s0
+
+-- * Framing
+
+framer :: Monad m => [Bool] ->  MSF m Bool [Bool]
+framer start = mealy recognize restart
+  where recognize i (h:t, []) | i == h = ([], (t, []))
+        recognize i ([], fr) = let fr' = i:fr in (fr', ([], i:fr'))
+        recognize _ _ = ([], restart)
+        restart = (start, [])
 
 -- * TODOs
 -- - model crossconnect function
