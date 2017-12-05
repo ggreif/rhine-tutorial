@@ -149,12 +149,15 @@ frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 
 -- | Applies a function to the input and an accumulator, returning the
--- accumulator and output. Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
+-- updated accumulator and output. Equal to
+-- @\f s0 -> feedback s0 $ arr (uncurry f)@.
 mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
 mealy f s0 = feedback s0 $ arr g
   where
     g (a, s) = let (b, s') = f a s in (b, s')
 
+mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
+mealySync f s0 = timeless $ mealy f s0
 
 -- * TODOs
 -- - model crossconnect function
