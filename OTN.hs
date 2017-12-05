@@ -150,10 +150,10 @@ frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 -- | Applies a function to the input and an accumulator, returning the
 -- accumulator and output. Equal to @\f s0 -> feedback s0 $ arr (uncurry f >>> dup)@.
-mealy :: Monad m => (a -> s -> (s, b)) -> s -> MSF m a b
+mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
 mealy f s0 = feedback s0 $ arr g
   where
-    g (a, s) = let (s', b) = f a s in (b, s')
+    g (a, s) = let (b, s') = f a s in (b, s')
 
 
 -- * TODOs
