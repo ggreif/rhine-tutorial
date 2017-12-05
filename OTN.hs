@@ -31,6 +31,8 @@ data RI = RI { ri_BDI, ri_BEI, ri_BIAE :: Bool }
 data CI = CI { ci_CK, ci_D, ci_FS, ci_MFS, ci_SSF :: Bool }
 data MI = MI { mi_ExSAPI, mi_ExDAPI, mi_GetAcTI, mi_TIMDetMo, mi_TIMActDis, mi_DEGThr, mi_DEGM, mi_1second :: Bool }
 
+data Defects = DEF { mi_AcTI, mi_cTIM, mi_cDEG, mi_cBDI, mi_cSSF, mi_pN_EBC
+                   , mi_pN_DS, mi_pF_EBC, mi_pF_DS, mi_pBIAE, mi_pIAE :: Bool }
 {-
 OTUk_AP:
 OTUk_AI_CK
