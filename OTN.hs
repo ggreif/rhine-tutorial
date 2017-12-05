@@ -79,6 +79,16 @@ OTUk_TT_Sk_MI_DEGM
 OTUk_TT_Sk_MI_1second
 -}
 
+-- raw defects
+data D = D { dTIM, dIAE :: Bool }
+
+correlator :: CI -> D -> Defects
+correlator CI{..} D{..} = DEF{..}
+  where aBDI = ci_SSF `or` dTIM
+        cTIM = dTIM `and` (not ci_SSF)
+        or = (||)
+        and = (&&)
+-- anomalies
 
 {-
 aBDI ← CI_SSF or dTIM
