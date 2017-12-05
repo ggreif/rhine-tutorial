@@ -28,42 +28,15 @@ import System.IO.Unsafe
 
 --adaptive information
 data AI = AI { ai_CK, ai_D, ai_FS, ai_MFS, ai_TSF, ai_TSD :: Bool }
--- remote info
+-- remote information
 data RI = RI { ri_BDI, ri_BEI, ri_BIAE :: Bool }
 -- characteristic information
 data CI = CI { ci_CK, ci_D, ci_FS, ci_MFS, ci_SSF :: Bool }
--- management interface
+-- management information
 data MI = MI { mi_ExSAPI, mi_ExDAPI, mi_GetAcTI, mi_TIMDetMo, mi_TIMActDis, mi_DEGThr, mi_DEGM, mi_1second :: Bool }
-
-data Defects = DEF { mi_AcTI, mi_cTIM, mi_cDEG, mi_cBDI, mi_cSSF, mi_pN_EBC
+-- fault causes
+data Cause = Cause { mi_AcTI, mi_cTIM, mi_cDEG, mi_cBDI, mi_cSSF, mi_pN_EBC
                    , mi_pN_DS, mi_pF_EBC, mi_pF_DS, mi_pBIAE, mi_pIAE :: Bool }
-{-
-OTUk_AP:
-OTUk_AI_CK
-OTUk_AI_D
-OTUk_AI_FS
-OTUk_AI_MFS
-OTUk_AI_TSF
-OTUk_AI_TSD
-
-OTUk_RP:
-OTUk_RI_BDI
-OTUk_RI_BEI
-OTUk_RI_BIAE
-
-OTUk_TT_Sk_MP:
-OTUk_TT_Sk_MI_AcTI
-OTUk_TT_Sk_MI_cTIM
-OTUk_TT_Sk_MI_cDEG
-OTUk_TT_Sk_MI_cBDI
-OTUk_TT_Sk_MI_cSSF
-OTUk_TT_Sk_MI_pN_EBC
-OTUk_TT_Sk_MI_pN_DS
-OTUk_TT_Sk_MI_pF_EBC
-OTUk_TT_Sk_MI_pF_DS
-OTUk_TT_Sk_MI_pBIAE
-OTUk_TT_Sk_MI_pIAE
--}
 
 {-
 OTUk_TCP:
@@ -84,43 +57,30 @@ OTUk_TT_Sk_MI_DEGM
 OTUk_TT_Sk_MI_1second
 -}
 
--- raw defects
+-- raw defects, internal to OTU
 data D = D { dTIM, dIAE, dDEG, dBDI :: Bool }
 
-correlator :: MI -> CI -> D -> Defects-- fault causes
-correlator MI{..} CI{..} D{..} = DEF{..}
-  where aBDI = ci_SSF `or` dTIM
+correlator :: MI -> CI -> D -> Cause
+correlator MI{..} CI{..} D{..} = Cause{..}
+  where -- anomalies
+        aBDI = ci_SSF `or` dTIM
         aBEI = False -- nBIPV
         aBIAE = dIAE
         aTSF = ci_SSF `or` (dTIM `and` (not mi_TIMActDis))
         aTSD = dDEG
+        -- fault causes
         mi_cTIM = dTIM `and` (not ci_SSF)
         mi_cDEG = dDEG `and` (not ci_SSF) `and` (not (dTIM `and` (not mi_TIMActDis)))
         mi_cBDI = dBDI `and` (not ci_SSF) `and` (not (dTIM `and` (not mi_TIMActDis)))
         mi_cSSF = ci_SSF
         or = (||)
         and = (&&)
--- anomalies
 
-{-
-aBDI ← CI_SSF or dTIM
-aBEI ← nBIPV
-aBIAE ← dIAE
-aTSF ← CI_SSF or (dTIM and (not TIMActDis))
-aTSD ← dDEG
-
-
-cTIM ← dTIM and (not CI_SSF)
-cDEG ← dDEG and (not CI_SSF) and (not (dTIM and (not TIMActDis)))
-cBDI ← dBDI and (not CI_SSF) and (not (dTIM and (not TIMActDis)))
-cSSF ← CI_SSF
-
--}
 
 data OTU = OTU { ho :: ODU } | OTUAIS deriving Show
 
 -- | Simple-minded ODU, only carrying a payload and some metadata
--- maint. sig
+-- | as well as maintenance signals
 data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } | AIS | OCI deriving Show
 
 
