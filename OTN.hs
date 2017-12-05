@@ -26,9 +26,13 @@ import System.IO.Unsafe
 
 -- * defects
 
+--adaptive information
 data AI = AI { ai_CK, ai_D, ai_FS, ai_MFS, ai_TSF, ai_TSD :: Bool }
+-- remote info
 data RI = RI { ri_BDI, ri_BEI, ri_BIAE :: Bool }
+-- characteristic information
 data CI = CI { ci_CK, ci_D, ci_FS, ci_MFS, ci_SSF :: Bool }
+-- management interface
 data MI = MI { mi_ExSAPI, mi_ExDAPI, mi_GetAcTI, mi_TIMDetMo, mi_TIMActDis, mi_DEGThr, mi_DEGM, mi_1second :: Bool }
 
 data Defects = DEF { mi_AcTI, mi_cTIM, mi_cDEG, mi_cBDI, mi_cSSF, mi_pN_EBC
@@ -83,7 +87,7 @@ OTUk_TT_Sk_MI_1second
 -- raw defects
 data D = D { dTIM, dIAE, dDEG, dBDI :: Bool }
 
-correlator :: MI -> CI -> D -> Defects
+correlator :: MI -> CI -> D -> Defects-- fault causes
 correlator MI{..} CI{..} D{..} = DEF{..}
   where aBDI = ci_SSF `or` dTIM
         aBEI = False -- nBIPV
@@ -113,11 +117,11 @@ cSSF ← CI_SSF
 
 -}
 
-data OTU = OTU { ho :: ODU } deriving Show
+data OTU = OTU { ho :: ODU } | OTUAIS deriving Show
 
 -- | Simple-minded ODU, only carrying a payload and some metadata
-
-data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } deriving Show
+-- maint. sig
+data ODU = ODU { payload :: Int, sapi :: String, dapi :: String } | AIS | OCI deriving Show
 
 
 -- pull a clock out of nothing...
@@ -173,7 +177,7 @@ otnTest = flow $ pipeline @@ waitClock
   where pipeline = portIn >-> terminate >-> monitor
                >-> frameCount
                >-> arr (\x->(x,x)) >-> cc >-> arr snd
-               >-> assemble >-> portOut
+               >-> monitor >-> assemble >-> portOut
 
 -- * Utilities
 
