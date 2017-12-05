@@ -25,6 +25,12 @@ import System.IO.Unsafe
 --   yet.
 
 -- * defects
+
+data AI = AI { ai_CK, ai_D, ai_FS, ai_MFS, ai_TSF, ai_TSD :: Bool }
+data RI = RI { ri_BDI, ri_BEI, ri_BIAE :: Bool }
+data CI = CI { ci_CK, ci_D, ci_FS, ci_MFS, ci_SSF :: Bool }
+data MI = MI { mi_ExSAPI, mi_ExDAPI, mi_GetAcTI, mi_TIMDetMo, mi_TIMActDis, mi_DEGThr, mi_DEGM, mi_1second :: Bool }
+
 {-
 OTUk_AP:
 OTUk_AI_CK
