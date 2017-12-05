@@ -68,6 +68,7 @@ OTUk_CI_D
 OTUk_CI_FS
 OTUk_CI_MFS
 OTUk_CI_SSF
+
 OTUk_TT_Sk_MP:
 OTUk_TT_Sk_MI_ExSAPI
 OTUk_TT_Sk_MI_ExDAPI
@@ -80,12 +81,19 @@ OTUk_TT_Sk_MI_1second
 -}
 
 -- raw defects
-data D = D { dTIM, dIAE :: Bool }
+data D = D { dTIM, dIAE, dDEG, dBDI :: Bool }
 
-correlator :: CI -> D -> Defects
-correlator CI{..} D{..} = DEF{..}
+correlator :: MI -> CI -> D -> Defects
+correlator MI{..} CI{..} D{..} = DEF{..}
   where aBDI = ci_SSF `or` dTIM
-        cTIM = dTIM `and` (not ci_SSF)
+        aBEI = False -- nBIPV
+        aBIAE = dIAE
+        aTSF = ci_SSF `or` (dTIM `and` (not mi_TIMActDis))
+        aTSD = dDEG
+        mi_cTIM = dTIM `and` (not ci_SSF)
+        mi_cDEG = dDEG `and` (not ci_SSF) `and` (not (dTIM `and` (not mi_TIMActDis)))
+        mi_cBDI = dBDI `and` (not ci_SSF) `and` (not (dTIM `and` (not mi_TIMActDis)))
+        mi_cSSF = ci_SSF
         or = (||)
         and = (&&)
 -- anomalies
