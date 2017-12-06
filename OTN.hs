@@ -157,10 +157,10 @@ simulate arr = runIdentity . embed arr
 
 -- * Framing
 
-framer :: Monad m => [Bool] ->  MSF m Bool [Bool]
+framer :: Monad m => [Bool] -> MSF m Bool [Bool]
 framer start = mealy recognize restart
   where recognize i (h:t, []) | i == h = ([], (t, []))
-        recognize i ([], fr) = let fr' = i:fr in (fr', ([], i:fr'))
+        recognize i ([], fr) = let fr' = i:fr in (fr', ([], fr'))
         recognize _ _ = ([], restart)
         restart = (start, [])
 
