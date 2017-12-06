@@ -14,7 +14,7 @@ import Data.Functor.Identity
 -- * Data types
 
 -- | OTN stands for Optical Transport Network.
--- | Here we define seveal components (like NIMs,
+-- | Here we define several components (like NIMs,
 -- | i.e non-intrusive monitors, terminations,
 -- | cross-connection functions) according to the
 -- | ITU standard (https://www.itu.int/rec/T-REC-G.709/en).
@@ -147,7 +147,7 @@ frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 
 -- | Applies a function to the input and an accumulator, returning the
--- updated accumulator and output.
+-- updated accumulator and output. FIXME: soon part of dunai
 mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
 mealy f s0 = feedback s0 $ arr $ uncurry f
 
