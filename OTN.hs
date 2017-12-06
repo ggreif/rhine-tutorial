@@ -1,4 +1,4 @@
-{-# LANGUAGE Arrows, DataKinds, RecordWildCards, BangPatterns, ScopedTypeVariables #-}
+{-# LANGUAGE Arrows, DataKinds, RecordWildCards, BangPatterns, ScopedTypeVariables, RankNTypes #-}
 
 module OTN where
 
@@ -10,6 +10,7 @@ import FRP.Rhine.Clock.Realtime.Millisecond
 import Data.IORef
 import System.IO.Unsafe
 import Control.Monad.Trans.Reader
+import Data.Functor.Identity
 
 -- * Data types
 
@@ -146,26 +147,14 @@ frameCount :: SyncSF IO FrameClock a a
 frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 
--- unfoldMealy (\x s -> let r = x+s in (r,r)) 0
-
-
 -- | Applies a function to the input and an accumulator, returning the
 -- updated accumulator and output.
 mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
 mealy f s0 = feedback s0 $ arr $ uncurry f
 
--- mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
--- mealySync f s0 = timeless $ mealy f s0
-
-
-simulate :: forall a b. MSF (ReaderT a IO) a b -> [a] -> [b]
-simulate arr inp = runReaderT (reactimate pipeline) (head inp)
-  where pipeline :: MSF (ReaderT a IO) () ()
-        pipeline = feeder >>> arr >>> drainer
-        feeder :: MSF (ReaderT a IO) () a
-        feeder = proc _ -> do returnA -< undefined
-        drainer :: MSF (ReaderT a IO) b ()
-        drainer = undefined
+-- | simulates a monad-polymorphic stream function
+simulate :: (forall m. Monad m => MSF m a b) -> [a] -> [b]
+simulate arr = runIdentity . embed arr
 
 -- * Framing
 
