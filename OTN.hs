@@ -1,4 +1,4 @@
-{-# LANGUAGE Arrows, DataKinds, RecordWildCards, BangPatterns #-}
+{-# LANGUAGE Arrows, DataKinds, RecordWildCards, BangPatterns, ScopedTypeVariables #-}
 
 module OTN where
 
@@ -9,6 +9,7 @@ import FRP.Rhine
 import FRP.Rhine.Clock.Realtime.Millisecond
 import Data.IORef
 import System.IO.Unsafe
+import Control.Monad.Trans.Reader
 
 -- * Data types
 
@@ -149,21 +150,22 @@ frameCount = syncId &&& count >-> arrMSync print >>> arr fst
 
 
 -- | Applies a function to the input and an accumulator, returning the
--- updated accumulator and output. Equal to
--- @\f s0 -> feedback s0 $ arr (uncurry f)@.
+-- updated accumulator and output.
 mealy :: Monad m => (a -> s -> (b, s)) -> s -> MSF m a b
-mealy f s0 = feedback s0 $ arr g
-  where
-    g (a, s) = let (b, s') = f a s in (b, s')
+mealy f s0 = feedback s0 $ arr $ uncurry f
 
 -- mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
 -- mealySync f s0 = timeless $ mealy f s0
 
 
-simulate :: MSF (a -> b) a b -> [a] -> [b]
-simulate arr inp = reactimate undefined -- pipeline
-  where --pipeline = feeder >>> arr >>> drainer
+simulate :: forall a b. MSF (ReaderT a IO) a b -> [a] -> [b]
+simulate arr inp = runReaderT (reactimate pipeline) (head inp)
+  where pipeline :: MSF (ReaderT a IO) () ()
+        pipeline = feeder >>> arr >>> drainer
+        feeder :: MSF (ReaderT a IO) () a
         feeder = proc _ -> do returnA -< undefined
+        drainer :: MSF (ReaderT a IO) b ()
+        drainer = undefined
 
 -- * Framing
 
