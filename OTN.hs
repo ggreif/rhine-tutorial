@@ -9,7 +9,6 @@ import FRP.Rhine
 import FRP.Rhine.Clock.Realtime.Millisecond
 import Data.IORef
 import System.IO.Unsafe
-import Control.Monad.Trans.Reader
 import Data.Functor.Identity
 
 -- * Data types
