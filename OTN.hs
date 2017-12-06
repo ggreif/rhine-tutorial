@@ -159,6 +159,12 @@ mealy f s0 = feedback s0 $ arr g
 -- mealySync :: Monad m => (a -> s -> (b, s)) -> s -> SyncSF m cl a b
 -- mealySync f s0 = timeless $ mealy f s0
 
+
+simulate :: MSF (a -> b) a b -> [a] -> [b]
+simulate arr inp = reactimate undefined -- pipeline
+  where --pipeline = feeder >>> arr >>> drainer
+        feeder = proc _ -> do returnA -< undefined
+
 -- * Framing
 
 framer :: Monad m => [Bool] ->  MSF m Bool [Bool]
