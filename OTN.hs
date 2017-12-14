@@ -157,12 +157,13 @@ simulate arr = runIdentity . embed arr
 
 -- * Framing
 
-framer :: Monad m => [Bool] -> MSF m Bool [Bool]
+framer :: Monad m => [Bool] {--> Int expected frame size-} -> MSF m Bool (Bool, [Bool], Int)
 framer start = mealy recognize restart
-  where recognize i (h:t, []) | i == h = ([], (t, []))
-        recognize i ([], fr) = let fr' = i:fr in (fr', ([], fr'))
-        recognize _ _ = ([], restart)
-        restart = (start, [])
+  where recognize i (h:t, [], n) | i == h = ((not (null t), [], n), (t, [], n))
+        recognize i ([], fr, n) = let fr' = i:fr in ((False, fr', n + 1), ([], fr', n + 1))
+        recognize _ _ = ((True, [], 0), restart)
+        restart :: ([Bool], [Bool], Int)
+        restart = (start, [], 0)
 
 -- * TODOs
 -- - model crossconnect function
