@@ -157,14 +157,15 @@ simulate arr = runIdentity . embed arr
 
 
 -- * Framing
-framer :: Monad m => [Bool] -> Int {-Int expected frame size-} -> MSF m Bool (Bool, [Bool], Int)
+framer :: Monad m => [Bool] -> Int {-Int expected frame size-} -> MSF m Bool (Bool, [Bool], Int, Int)
 framer start len = mealy recognize restart
-  where recognize markerbit (h:t, go, [], n) | markerbit == h = ((not (null t), [], n), (t, go - 1, [], n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
-        recognize framebit ([], 0, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), ([], len, [], 0)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
-        recognize framebit ([], go, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), ([], go - 1, fr', n + 1)) {-Accumulate frame, reduce its remaining expected length and increase the accumulated frame´s size-}
-        recognize _ _ = ((True, [], 0), restart) {-Until the frame marker is found declare LOF and do not accumulate bits-}
-        restart :: ([Bool], Int, [Bool], Int) {-Output´s start state: frame marker, expected frame length, accumulated frame, accumulated frame Length -}
-        restart = (start, len, [], 0)
+  where recognize markerbit ([h], go, [], n, frnum) | markerbit == h = ((False, [], n, frnum + 1), ([], go - 1, [], n, frnum + 1))  {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize markerbit (h:t, go, [], n, frnum) | markerbit == h = ((not (null t), [], n, frnum), (t, go, [], n, frnum)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize framebit ([], 0, fr, n, frnum) = let fr' = framebit:fr in ((False, fr', n + 1, frnum), ([], len, [], 0, frnum)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
+        recognize framebit ([], go, fr, n, frnum) = let fr' = framebit:fr in ((False, fr', n + 1, frnum), ([], go - 1, fr', n + 1, frnum)) {-Accumulated frame, reduce its remaining expected length and increase the accumulated frame´s size-}
+        recognize _ _ = ((True, [], 0, 0), restart) {-Until the frame marker is found declare LOF and do not accumulate bits-}
+        restart :: ([Bool], Int, [Bool], Int, Int) {-Output´s start state: frame marker, expected frame length, accumulated frame, accumulated frame Length -}
+        restart = (start, len, [], 0, 0)
 
 -- * TODOs
 -- - model crossconnect function
