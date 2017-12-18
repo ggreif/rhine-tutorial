@@ -164,10 +164,9 @@ traced f a s = traceShow ("INPUT", a, "STATE" , s, "OUT", out) out
 framer :: (Show a, Eq a, Monad m) => [a] -> Int {-Int expected frame size-} -> MSF m a (Bool, [a], Int)
 framer start len = mealy (traced recognize) restart
   where
-  --  ("INPUT",True,"STATE",([True,True],3,[],0),"OUT",((True,[],0),([True],3,[],0)))
   {- recognize markerbit ([h], go, fr, n, frnum) | markerbit == h = ((False, [], n, frnum + 1), ([], go - 1, [], n, frnum + 1))   A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
         recognize markerbit (h:t, go, [], n) | markerbit == h = ((not (null t), [], n), (t, go, [], n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
-        recognize markerbit (h:t, go, fr, n) | markerbit == h = let (fr', n') = if null t then ([], 0) else (fr,n) in ((False, [], n), (t, len, fr', n')) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize markerbit (h:t, go, fr, n) | markerbit == h = let (fr', n') = if null t then ([], 0) else (fr,n) in ((False, [], n), (t, len, fr', n')) {- A bit belonging to the frame marker is found: if it is the last we start with an empty frame otherwise strip the bit and accumulate the frame-}
         recognize framebit ([], 0, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), (start, len, fr, 0)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
         recognize framebit ([], go, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), ([], go - 1, fr', n + 1)) {-Accumulated frame, reduce its remaining expected length and increase the accumulated frame´s size-}
 
