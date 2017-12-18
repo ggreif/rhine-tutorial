@@ -10,7 +10,7 @@ import FRP.Rhine.Clock.Realtime.Millisecond
 import Data.IORef
 import System.IO.Unsafe
 import Data.Functor.Identity
-
+import Debug.Trace
 -- * Data types
 
 -- | OTN stands for Optical Transport Network.
@@ -156,19 +156,24 @@ simulate :: (forall m. Monad m => MSF m a b) -> [a] -> [b]
 simulate arr = runIdentity . embed arr
 
 
--- * Framing
-framer :: (Eq a, Monad m) => [a] -> Int {-Int expected frame size-} -> MSF m a (Bool, [a], Int)
-framer start len = mealy recognize restart
-  where
-  {-  recognize markerbit ([h], go, fr, n, frnum) | markerbit == h = ((False, [], n, frnum + 1), ([], go - 1, [], n, frnum + 1))   A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
-        recognize markerbit (h:t, go, [], n) | markerbit == h = ((not (null t), [], n), (t, go, [], n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
-        recognize markerbit (h:t, go, fr, n) | markerbit == h = ((not (null t), [], n), (t, len, fr, n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+traced :: (Show a,Show s, Show b) => (a -> s -> (b, s)) -> a -> s -> (b, s)
+traced f a s = traceShow ("INPUT", a, "STATE" , s, "OUT", out) out
+  where out = f a s
 
-        recognize framebit ([], 1, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), (start, len, [], 0)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
+-- * Framing
+framer :: (Show a, Eq a, Monad m) => [a] -> Int {-Int expected frame size-} -> MSF m a (Bool, [a], Int)
+framer start len = mealy (traced recognize) restart
+  where
+  --  ("INPUT",True,"STATE",([True,True],3,[],0),"OUT",((True,[],0),([True],3,[],0)))
+  {- recognize markerbit ([h], go, fr, n, frnum) | markerbit == h = ((False, [], n, frnum + 1), ([], go - 1, [], n, frnum + 1))   A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize markerbit (h:t, go, [], n) | markerbit == h = ((not (null t), [], n), (t, go, [], n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize markerbit (h:t, go, fr, n) | markerbit == h = let (fr', n') = if null t then ([], 0) else (fr,n) in ((False, [], n), (t, len, fr', n')) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
+        recognize framebit ([], 0, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), (start, len, fr, 0)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
         recognize framebit ([], go, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), ([], go - 1, fr', n + 1)) {-Accumulated frame, reduce its remaining expected length and increase the accumulated frame´s size-}
-        recognize _ _ = ((True, [], 0), restart) {-Until the frame marker is found declare LOF and do not accumulate bits-}
+
+        recognize a b = ((True, [], 0), restart) {-Until the frame marker is found declare LOF and do not accumulate bits-}
         --restart :: ([Bool], Int, [Bool], Int, Int) {-Output´s start state: frame marker, expected frame length, accumulated frame, accumulated frame Length -}
-        restart = (start, len, [], 0)
+        restart = (start, len-1, [], 0)
 framecounter :: Monad m => MSF m (Bool, [a], Int) (Bool, [a], (Int, Int))
 framecounter = mealy count (0, 0)
    where count (False, fr, len) (nold, c) | len < nold = ((False, fr, (len, c + 1)), (len, c + 1))
