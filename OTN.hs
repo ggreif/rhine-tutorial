@@ -11,6 +11,11 @@ import Data.IORef
 import System.IO.Unsafe
 import Data.Functor.Identity
 import Debug.Trace
+import Test.QuickCheck
+import Data.List
+import Control.Monad
+
+
 -- * Data types
 
 -- | OTN stands for Optical Transport Network.
@@ -156,7 +161,7 @@ simulate :: (forall m. Monad m => MSF m a b) -> [a] -> [b]
 simulate arr = runIdentity . embed arr
 
 
-traced :: (Show a,Show s, Show b) => (a -> s -> (b, s)) -> a -> s -> (b, s)
+traced :: (Show a, Show s, Show b) => (a -> s -> (b, s)) -> a -> s -> (b, s)
 traced f a s = traceShow ("INPUT", a, "STATE" , s, "OUT", out) out
   where out = f a s
 
@@ -164,7 +169,6 @@ traced f a s = traceShow ("INPUT", a, "STATE" , s, "OUT", out) out
 framer :: (Show a, Eq a, Monad m) => [a] -> Int {-Int expected frame size-} -> MSF m a (Bool, [a], Int)
 framer start len = mealy (traced recognize) restart
   where
-  {- recognize markerbit ([h], go, fr, n, frnum) | markerbit == h = ((False, [], n, frnum + 1), ([], go - 1, [], n, frnum + 1))   A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
         recognize markerbit (h:t, go, [], n) | markerbit == h = ((not (null t), [], n), (t, go, [], n)) {- A bit belonging to the frame marker is found: strip it and continue; Do not accumulate it in the output frame-}
         recognize markerbit (h:t, go, fr, n) | markerbit == h = let (fr', n') = if null t then ([], 0) else (fr, n) in ((False, [], n), (t, len - 1, fr', n')) {- A bit belonging to the frame marker is found: if it is the last we start with an empty frame otherwise strip the bit and accumulate the frame-}
         recognize framebit ([], 0, fr, n) = let fr' = framebit:fr in ((False, fr', n + 1), (start, len, fr, 0)) {-Current accumulated frame reached its given length; "Reset" the output and start again accumulating a new frame-}
@@ -178,6 +182,33 @@ framecounter = mealy count (0, 0)
    where count (False, fr, len) (nold, c) | len < nold = ((False, fr, (len, c + 1)), (len, c + 1))
          count (False, fr, len) (_, c) = ((False, fr, (len, c)), (len, c))
          count (lof, fr, len) _ = ( (lof, fr, (len, 0)), (len, 0) )
+
+
+
+---data frame =  W1 | W2 | P deriving Show
+--instance Arbitrary frame where
+--arbitrary = oneof $ pure <$> [W1]
+
+
+
+--repeat, intersperse
+
+randomFrame :: Gen a->Int->[a]-> Gen [a]
+randomFrame gen size pre = do payload <- replicateM size gen
+                              ((pre ++ payload) ++) <$> randomFrame gen size pre
+  --pre ++ replicate size True ++ randomFrame size pre
+
+
+useBoolList :: [Bool] -> String
+useBoolList [] = ""
+useBoolList (x:xs) = (if x == True then "1" else "0") ++ useBoolList xs
+
+--mapM_ print  $ simulate (framer [True, True] 3) ((=='1') <$> "111011110111000")
+
+
+
+
+
 -- * TODOs
 -- - model crossconnect function
 -- - model AIS (OTU/ODU)
