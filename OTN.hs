@@ -207,7 +207,16 @@ useBoolList (x:xs) = (if x == True then "1" else "0") ++ useBoolList xs
 
 
 
-
+-- * ServerSignals
+-- these "peel off" a layer of overhead from the currently
+-- OTN signal, exposing its innards
+-- It could be generally descrived as
+class SeverSignal svr where
+  type Enclosed svr :: *
+  -- | peel sig removes the outer container and exposing
+  -- | the contained data stream and indicating whether the
+  -- | service is good.
+  peel :: Signal svr -> Signal (Bool, Maybe (Enclosed svr))
 
 -- * TODOs
 -- - model crossconnect function
