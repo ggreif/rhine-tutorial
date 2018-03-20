@@ -72,7 +72,7 @@ correlator MI{..} CI{..} D{..} = Cause{..}
         aBDI = ci_SSF `or` dTIM
         aBEI = False -- nBIPV
         aBIAE = dIAE
-        aTSF = ci_SSF `or` (dTIM `and` (not mi_TIMActDis))
+        aTSF = ci_SSF `or` (dTIM `and` not mi_TIMActDis)
         aTSD = dDEG
         -- fault causes
         mi_cTIM = dTIM `and` (not ci_SSF)
@@ -201,7 +201,7 @@ randomFrame gen size pre = do payload <- replicateM size gen
 
 useBoolList :: [Bool] -> String
 useBoolList [] = ""
-useBoolList (x:xs) = (if x == True then "1" else "0") ++ useBoolList xs
+useBoolList (x:xs) = (if x then "1" else "0") ++ useBoolList xs
 
 --mapM_ print  $ simulate (framer [True, True] 3) ((=='1') <$> "111011110111000")
 
